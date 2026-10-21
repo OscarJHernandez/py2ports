@@ -16,7 +16,10 @@ def register(root, url, name, entrypoint, source="."):
         raise Error("Game name must use lowercase letters, digits, hyphens, and underscores.")
     if not (url.startswith("https://") or url.startswith("ssh://") or url.startswith("git@")):
         raise Error("Use an HTTPS or SSH repository URL without embedded passwords/tokens.")
-    parsed = urllib.parse.urlsplit(url)
+    try:
+        parsed = urllib.parse.urlsplit(url)
+    except ValueError as exc:
+        raise Error("Invalid repository URL.") from exc
     if ("\n" in url or "\r" in url or parsed.password or parsed.query or parsed.fragment
             or (url.startswith("https://") and parsed.username)):
         raise Error("Repository URLs must not contain credentials or newlines.")

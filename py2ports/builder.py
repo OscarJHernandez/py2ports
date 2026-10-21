@@ -2,6 +2,7 @@
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import tempfile
@@ -22,11 +23,17 @@ def runtime_inputs(game):
     profile_path = game.root / "runtime" / f"{game.runtime}.toml"
     try:
         profile = tomllib.loads(profile_path.read_text())
-        if profile["platform"] != "linux/arm64" or "@sha256:" not in profile["image"]:
+        if (profile.get("schema") != 1 or profile["platform"] != "linux/arm64"
+                or not isinstance(profile["image"], str)
+                or not re.fullmatch(r"[^\s]+@sha256:[0-9a-f]{64}", profile["image"])):
             raise Error("Runtime must use linux/arm64 and an image pinned by sha256 digest.")
         for key in ("python", "pygame", "pygame_commit", "debian_snapshot"):
             if not isinstance(profile[key], str):
                 raise Error(f"Runtime profile {key} must be text.")
+        if not re.fullmatch(r"[0-9a-f]{40}", profile["pygame_commit"]):
+            raise Error("Runtime pygame_commit must be a full 40-character Git commit.")
+        if not re.fullmatch(r"[0-9]{8}T[0-9]{6}Z", profile["debian_snapshot"]):
+            raise Error("Runtime debian_snapshot must use YYYYMMDDTHHMMSSZ.")
     except (KeyError, OSError, tomllib.TOMLDecodeError) as exc:
         raise Error(f"Invalid runtime profile {game.runtime}: {exc}") from exc
     dependency = inside(game.root, game.dependencies) if game.dependencies else None

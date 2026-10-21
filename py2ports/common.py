@@ -24,6 +24,8 @@ def run(args, *, cwd=None, env=None, capture=True):
 def inside(root: Path, relative: str) -> Path:
     if not isinstance(relative, str) or not relative or Path(relative).is_absolute():
         raise Error(f"Expected a relative path, got {relative!r}")
+    if any(ord(character) < 32 or character == "\\" for character in relative):
+        raise Error("Paths must use forward slashes and cannot contain control characters.")
     candidate = (root / relative).resolve()
     if not candidate.is_relative_to(root.resolve()):
         raise Error(f"Path escapes its root: {relative}")

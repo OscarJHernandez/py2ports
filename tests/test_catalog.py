@@ -5,6 +5,7 @@ import pytest
 from py2ports.catalog import discover
 from py2ports.cli import main, register
 from py2ports.common import Error
+from py2ports.common import inside
 from conftest import add_game, command
 
 
@@ -68,6 +69,11 @@ def test_gitlink_requires_gitmodules_registration(project):
     (project / ".gitmodules").unlink()
     with pytest.raises(Error, match=".gitmodules registration"):
         discover(project)[0].commit()
+
+
+def test_control_characters_rejected_in_paths(project):
+    with pytest.raises(Error, match="control characters"):
+        inside(project, "src/\0broken.py")
 
 
 def test_duplicate_id(project):

@@ -7,7 +7,7 @@ No check connected to a physical handheld.
 | --- | --- |
 | Documented `make setup` with Python 3.12 | Passed |
 | `make list`, `make validate` | Passed with the actual private game submodule |
-| `make test` | 57 passed |
+| `make test` | 59 passed |
 | Independent private-game desktop smoke | 1 passed with pygame 2.6.1 and dummy SDL drivers |
 | Fresh game repository history | One new root commit; no original history inherited |
 | Original versus fresh game source | Both source Git blob hashes match the authorized original revision |
@@ -23,6 +23,7 @@ No check connected to a physical handheld.
 | Device connection errors and install/upgrade/rollback | Simulated transport/shell tests passed |
 | Python compilation and shell syntax | Passed |
 | Public-source review | Game represented only by gitlink; build/dist artifacts ignored |
+| Actual public artifact preparation | Passed; runtime, provenance, release metadata and checksums only; private game excluded |
 
 The suite creates real temporary independent repositories and recursive clean
 clones. It tests different game layouts, assets, malformed configuration, dirty

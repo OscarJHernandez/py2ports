@@ -64,6 +64,13 @@ def test_failed_docker_no_cache(project, monkeypatch):
     assert not list((project / "build").glob("**/runtime.json"))
 
 
+def test_invalid_runtime_image_type(project):
+    profile = project / "runtime/knulli-arm64.toml"
+    profile.write_text('schema = 1\nplatform = "linux/arm64"\nimage = 123\n')
+    with pytest.raises(Error, match="image pinned"):
+        builder.runtime_inputs(discover(project)[0])
+
+
 def test_incomplete_build_rejected(project, monkeypatch):
     monkeypatch.setattr(builder, "run", lambda *args, **kwargs: "")
     with pytest.raises(Error, match="valid SquashFS"):
