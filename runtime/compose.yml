@@ -1,0 +1,14 @@
+services:
+  builder:
+    image: ${PY2PORTS_IMAGE:?runtime image is required}
+    platform: linux/arm64
+    environment:
+      PYTHON_VERSION: ${PY2PORTS_PYTHON:?}
+      PYGAME_VERSION: ${PY2PORTS_PYGAME:?}
+      PYGAME_COMMIT: ${PY2PORTS_PYGAME_COMMIT:?}
+      DEBIAN_SNAPSHOT: ${PY2PORTS_DEBIAN_SNAPSHOT:?}
+    command: ["bash", "/input/build-runtime.sh"]
+    volumes:
+      - ${PY2PORTS_RUNTIME_DIR:?}:/input:ro
+      - ${PY2PORTS_OUTPUT:?}:/output
+      - ${PY2PORTS_REQUIREMENTS:?}:/requirements.txt:ro

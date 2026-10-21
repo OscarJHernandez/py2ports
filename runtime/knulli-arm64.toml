@@ -1,0 +1,7 @@
+schema = 1
+image = "python:3.12.8-bookworm@sha256:68ca65265c466f4b64f8ddab669e13bcba8d4ba77ec4c26658d36f2b9d1b1cad"
+platform = "linux/arm64"
+python = "3.12.8"
+pygame = "2.5.6"
+pygame_commit = "a17caaef2ae155713b0f6de77cbb4998446e8b2e"
+debian_snapshot = "20261020T000000Z"

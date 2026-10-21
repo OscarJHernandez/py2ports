@@ -1,0 +1,13 @@
+schema = 1
+id = "python_game"
+name = "Python Game"
+submodule = "games/python_game"
+source = "."
+include = ["src"]
+entrypoint = "src/run.py"
+working_directory = "."
+runtime = "knulli-arm64"
+publish = false
+
+[environment]
+SDL_VIDEODRIVER = "mali"

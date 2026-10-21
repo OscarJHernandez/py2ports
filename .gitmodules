@@ -1,0 +1,3 @@
+[submodule "games/python_game"]
+	path = games/python_game
+	url = https://github.com/OscarJHernandez/py2ports-example-game.git

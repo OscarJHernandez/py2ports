@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "py2ports"
+version = "0.1.0"
+description = "Package independent Pygame games for ARM64 Knulli handhelds"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [{name = "Oscar Javier Hernandez"}]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10"]
+
+[project.scripts]
+py2ports = "py2ports.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["py2ports*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
