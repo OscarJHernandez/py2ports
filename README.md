@@ -28,7 +28,7 @@ If your default Python is older, install a newer one and use
 building**, builds/packages what is needed, and installs the game. The first
 runtime build may take 5–20 minutes; unchanged runtimes and ZIPs are reused.
 GitHub and package downloads are needed on your computer, not on the handheld.
-The initial example ZIP is about 415 MiB, including dependency source archives
+The initial example ZIP is roughly 400 MiB, including dependency source archives
 and licenses. Allow roughly 1 GiB of free device storage for staging an install;
 upgrades also preserve a backup and may need more space. Deployment calculates
 the required space and tells you if there is not enough.

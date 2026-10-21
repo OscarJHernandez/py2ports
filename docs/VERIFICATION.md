@@ -7,7 +7,7 @@ No check connected to a physical handheld.
 | --- | --- |
 | Documented `make setup` with Python 3.12 | Passed |
 | `make list`, `make validate` | Passed with the actual private game submodule |
-| `make test` | 59 passed |
+| `make test` | 60 passed |
 | Independent private-game desktop smoke | 1 passed with pygame 2.6.1 and dummy SDL drivers |
 | Fresh game repository history | One new root commit; no original history inherited |
 | Original versus fresh game source | Both source Git blob hashes match the authorized original revision |
@@ -16,9 +16,10 @@ No check connected to a physical handheld.
 | Actual recursive GitHub clone | Passed; fresh private submodule initialized and independent desktop smoke passed |
 | Real Docker/SquashFS build | Passed: ARM64 Python 3.12.8 and Pygame-CE 2.5.6 |
 | Runtime library audit and dependency sources | Passed; corresponding Debian/Pygame sources included |
+| Device graphics library isolation | SDL2, EGL/GLES, GBM and DRM remain supplied by the device; regression test added |
 | Extracted runtime display/audio/font smoke | Passed in a separate ARM64 container using dummy SDL drivers |
 | Runtime reuse | Repeated builds used the unchanged cache entry |
-| Actual private-game ZIP | Built locally and validated; about 415 MiB; no public upload |
+| Actual private-game ZIP | Built locally and validated; roughly 400 MiB; no public upload |
 | Package extraction | Synthetic game automated tests and actual private ZIP extraction passed |
 | Device connection errors and install/upgrade/rollback | Simulated transport/shell tests passed |
 | Python compilation and shell syntax | Passed |

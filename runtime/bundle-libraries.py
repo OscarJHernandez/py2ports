@@ -13,7 +13,10 @@ import sys
 root = Path(sys.argv[1]).resolve()
 verify = "--verify" in sys.argv
 host = {"libSDL2-2.0.so.0", "libc.so.6", "libm.so.6", "libdl.so.2",
-        "libpthread.so.0", "librt.so.1", "ld-linux-aarch64.so.1"}
+        "libpthread.so.0", "librt.so.1", "ld-linux-aarch64.so.1",
+        "libEGL.so.1", "libGLESv1_CM.so.1", "libGLESv2.so.2", "libGL.so.1",
+        "libGLX.so.0", "libOpenGL.so.0", "libGLdispatch.so.0", "libglapi.so.0",
+        "libgbm.so.1", "libdrm.so.2"}
 queue = [root / "bin/python"] + list(root.rglob("*.so")) + list(root.rglob("*.so.*"))
 seen = set()
 sources = {}

@@ -29,7 +29,7 @@ Upstream sources:
 - Debian source archive: https://snapshot.debian.org/
 - Docker Python image: https://github.com/docker-library/python
 
-Knulli supplies libc and its SDL2/Mali graphics stack on the device. These host
+Knulli supplies libc and its SDL2/Mali/EGL/GBM/DRM graphics stack on the device. These host
 components are not included in game ZIPs; required library names are recorded
 inside the runtime's `host-libraries.txt`. This is an ARM64 Knulli profile,
 not a universal Linux runtime.
