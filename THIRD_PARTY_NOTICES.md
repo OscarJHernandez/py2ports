@@ -2,8 +2,10 @@
 
 Original py2ports platform code is MIT licensed. The Docker/SquashFS build
 and launcher approach is generalized with authorization from Oscar Javier
-Hernandez's private python_game project. Game logic remains in an independent
-private submodule and is not licensed by the platform's MIT license.
+Hernandez's private python_game project. The template and the template-generated
+Snake and Breakout games live in independent public submodules, each with its own MIT license and origin
+attribution. The owner explicitly authorized MIT redistribution of the inherited
+template code. The original game repositories remain private and unchanged.
 
 The device runtime contains Python 3.12.8 (PSF License Agreement and included
 third-party notices), Pygame-CE 2.5.6 (LGPL 2.1), and their dependencies. Python
@@ -36,4 +38,6 @@ not a universal Linux runtime.
 
 `publish = false` is the default for every registered game. Before enabling
 publication, the owner must authorize redistribution of its source, assets,
-and dependencies. The private example is never included in public CI or releases.
+and dependencies. Snake and Breakout are eligible for public packaging; the
+movement-demo template has publication disabled. Private games are never included
+in public CI checkouts or release artifacts.

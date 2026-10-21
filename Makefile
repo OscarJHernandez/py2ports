@@ -8,7 +8,7 @@ DEVICE_USER ?= root
 .PHONY: help setup list validate build package check-device deploy add test
 help:
 	@echo 'make setup | list | validate | build | package | check-device | deploy | test'
-	@echo 'Deploy one game: make deploy GAME=py2port_pygame_template [DEVICE_HOST=192.168.1.50]'
+	@echo 'Deploy one game: make deploy GAME=py2ports_snake [DEVICE_HOST=192.168.1.50]'
 
 setup:
 	@$(PYTHON) -c 'import sys; sys.exit("Python 3.11+ required. Retry make setup PYTHON=python3.12" if sys.version_info < (3,11) else 0)'

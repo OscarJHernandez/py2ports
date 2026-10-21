@@ -23,7 +23,7 @@ If your default Python is older, install a newer one and use
 building**, builds/packages what is needed, and installs the game. The first
 runtime build may take 5–20 minutes; unchanged runtimes and ZIPs are reused.
 GitHub and package downloads are needed on your computer, not on the handheld.
-The initial example ZIP is roughly 400 MiB, including dependency source archives
+Each playable game ZIP is roughly 400 MiB, including dependency source archives
 and licenses. Allow roughly 1 GiB of free device storage for staging an install;
 upgrades also preserve a backup and may need more space. Deployment calculates
 the required space and tells you if there is not enough.
@@ -48,7 +48,7 @@ Passwords are never saved, and a deployment reuses one SSH connection.
 Override connection settings with `DEVICE_HOST`, `DEVICE_USER`, and `DEVICE_PORT`:
 
 ```sh
-make deploy GAME=py2port_pygame_template DEVICE_HOST=my-handheld DEVICE_USER=root DEVICE_PORT=22
+make deploy GAME=py2ports_snake DEVICE_HOST=my-handheld DEVICE_USER=root DEVICE_PORT=22
 ```
 
 For persistent settings, use `~/.ssh/config`; port settings there are respected
@@ -62,7 +62,7 @@ Host my-handheld
     IdentityFile ~/.ssh/id_ed25519
 ```
 
-Then use `make deploy GAME=py2port_pygame_template DEVICE_HOST=my-handheld`. `DEVICE_USER`
+Then use `make deploy GAME=py2ports_snake DEVICE_HOST=my-handheld`. `DEVICE_USER`
 defaults to root; set it explicitly if your SSH configuration uses another user.
 
 ## Other commands
@@ -71,9 +71,9 @@ defaults to root; set it explicitly if your SSH configuration uses another user.
 make list
 make validate
 make build                      # stage every accessible registered game
-make build GAME=py2port_pygame_template
+make build GAME=py2ports_snake
 make package                    # create dist/<id>.zip for every game
-make package GAME=py2port_pygame_template
+make package GAME=py2ports_snake
 make deploy                     # install existing ZIPs for registered games
 make test                       # no connection to a physical device
 ```
@@ -81,12 +81,25 @@ make test                       # no connection to a physical device
 The CLI provides the same commands:
 
 ```sh
-.venv/bin/py2ports deploy --game py2port_pygame_template --host 192.168.1.50
+.venv/bin/py2ports deploy --game py2ports_snake --host 192.168.1.50
 .venv/bin/py2ports check-device --host 192.168.1.50
 .venv/bin/py2ports validate --metadata-only
 ```
 
 ### Install a ZIP manually
+
+Build locally with `make package GAME=py2ports_snake` or
+`make package GAME=py2ports_breakout`, or download the public CI artifact described
+below. After a release is explicitly published, its versioned game ZIPs and
+`SHA256SUMS` are available from GitHub Releases. No release is published automatically.
+
+Verify downloaded files before extraction, from the directory containing the ZIPs:
+
+```sh
+sha256sum -c public-games-SHA256SUMS  # CI artifact
+# For a release: sha256sum -c SHA256SUMS
+# macOS alternative: shasum -a 256 -c public-games-SHA256SUMS
+```
 
 Extract `dist/<id>.zip` directly into `/userdata/roms/ports/`, retaining the
 executable permission on `<id>.sh` (`chmod +x` if your extractor drops it).
@@ -95,15 +108,17 @@ or development tools on the device. Automated deployment additionally verifies
 checksums, stages the installation, preserves `data/`, and retains the previous
 installation in a hidden backup. It does not delete other games. Games should
 store saves in `PY2PORTS_DATA_DIR`; arbitrary saves elsewhere remain in the backup.
-The template installs under `/userdata/roms/ports/py2port_pygame_template/`,
-with its own launcher. Any previous `python_game` installation remains separate;
+Snake installs under `/userdata/roms/ports/py2ports_snake/` and Breakout under
+`/userdata/roms/ports/py2ports_breakout/`, each with its own matching launcher.
+Their high scores are stored separately in `<game-id>/data/scores.json` and
+logs in `<game-id>/log.txt`. Any previous `python_game` installation remains separate;
 there is no automatic deletion or migration.
 Do not upgrade a game while it is running. Backups are retained until you remove
 them, so check storage after repeated upgrades.
 
 ## Add your own game
 
-Public contributors should start with a non-recursive clone:
+To register a game without downloading the included games, use a non-recursive clone:
 
 ```sh
 git clone https://github.com/OscarJHernandez/py2ports.git
@@ -147,12 +162,13 @@ game source into ignored build artifacts; it never vendors it into platform code
 
 ### Start from the Pygame template
 
-With access to the private [py2port_pygame_template repository](https://github.com/OscarJHernandez/py2port_pygame_template),
+From the public, MIT-licensed [py2port_pygame_template repository](https://github.com/OscarJHernandez/py2port_pygame_template),
 select **Use this template → Create a new repository**. Choose your own game name
-and keep the generated repository private. It starts with independent Git history.
+and choose public or private visibility. It starts with independent Git history.
 Clone it, run `make setup`, `make run`, and `make test`, then customize the game
-loop and add assets. Keep copied code private unless its owner separately
-permits public redistribution.
+loop and add assets. Preserve the template's MIT license and origin attribution.
+Both included games were generated from the same public template revision; each
+records that revision and its generated root in `TEMPLATE_ORIGIN.json`.
 
 From your py2ports checkout, register the repository you created:
 
@@ -162,7 +178,7 @@ From your py2ports checkout, register the repository you created:
 make deploy GAME=my_game
 ```
 
-In its catalog manifest, select `include = ["src", "assets", "README.md"]` to
+In its catalog manifest, select `include = ["src", "assets", "README.md", "LICENSE"]` to
 package the game, its asset directory, and origin notices. Leave `publish = false`.
 All Knulli runtime, launcher, and SSH configuration stays in the superproject.
 
@@ -211,15 +227,28 @@ and releases its unique SquashFS mount on normal exit and handled signals.
 
 ## CI and releases
 
-Public CI validates catalog metadata without fetching private submodules, runs
-synthetic independent-game tests, and builds/packages a synthetic game with the
-real ARM64 runtime. It never receives private-game credentials. Local private
-verification uses `make validate`, `make package GAME=py2port_pygame_template`, and the
-independent desktop smoke test above. CI explicitly reports private coverage as skipped.
+Public CI validates catalog metadata without fetching private submodules and runs
+synthetic independent-game tests. The ARM64 job also initializes only Snake and
+Breakout, packages both with the same runtime, executes their headless entrypoints
+and game tests, and simulates installs/upgrades/rollback locally. The separate game
+repositories test desktop pygame on Python 3.11 and 3.12. CI receives no private-game
+credentials and never connects to a handheld.
+
+Run the public-game integration check locally with Docker running:
+
+```sh
+.venv/bin/python tests/public_games_smoke.py
+```
+
+Successful ARM64 CI runs upload `public-playable-games`, containing only the two
+public game ZIPs and `public-games-SHA256SUMS`. Download the artifact from the
+workflow run, extract that outer artifact ZIP, then follow the manual install
+instructions. These are CI build artifacts, not a published GitHub release.
 
 Tags matching `v*` and manual release runs build only games explicitly marked
 `publish = true` and eligible for public redistribution, along with the public
-runtime. Private games are never checked out or uploaded. Set `publish = true`
+runtime. The template is public but has publication disabled. Snake and Breakout
+are publication-enabled; private games are never checked out or uploaded. Set `publish = true`
 only after the game owner authorizes redistribution of its source, assets, and
 dependencies. Keep private dependencies out of public runtime profiles.
 
