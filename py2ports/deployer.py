@@ -15,7 +15,7 @@ PREFLIGHT = r'''
 set -eu
 fail() { echo "PY2PORTS_ERROR:$1"; exit 1; }
 case "$(uname -m)" in aarch64|arm64) ;; *) fail architecture ;; esac
-for tool in sh mount umount unzip sha256sum df du awk cp mv mkdir mktemp rmdir rm chmod grep readlink date; do
+for tool in sh scp mount umount unzip sha256sum df du awk cp mv mkdir mktemp rmdir rm chmod grep readlink date; do
     command -v "$tool" >/dev/null 2>&1 || fail "tool:$tool"
 done
 [ -d "$PORTS" ] || fail ports_missing
