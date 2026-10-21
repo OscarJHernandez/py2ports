@@ -6,10 +6,12 @@ runtime, generates its Ports launcher, and installs it over SSH.
 
 ## Deploy to your handheld
 
-**The included example is private.** Your GitHub account needs access to
-`OscarJHernandez/py2ports-example-game`; request access from the owner. Public
+**The included game template is private.** Your GitHub account needs access to
+`OscarJHernandez/py2port_pygame_template`; request access from the owner. Public
 contributors can clone without submodules and [register their own game](#add-your-own-game).
-The original `python_game` repository is left untouched.
+The template has fresh Git history and is marked as a GitHub template. The
+original `python_game` and earlier `py2ports-example-game` repositories remain
+untouched.
 
 You need **Python 3.11+**, **Docker with Compose running**, Make, SSH/SCP, and
 Git. Turn on your handheld, enable SSH in Knulli, and connect it to the same
@@ -20,7 +22,7 @@ on x86 needs ARM64 binfmt/QEMU support.
 git clone --recurse-submodules https://github.com/OscarJHernandez/py2ports.git
 cd py2ports
 make setup
-make deploy GAME=python_game
+make deploy GAME=py2port_pygame_template
 ```
 
 If your default Python is older, install a newer one and use
@@ -44,12 +46,12 @@ If the name `knulli` is not found, use the IP shown in the device's network menu
 
 ```sh
 make check-device DEVICE_HOST=192.168.1.50
-make deploy GAME=python_game DEVICE_HOST=192.168.1.50
+make deploy GAME=py2port_pygame_template DEVICE_HOST=192.168.1.50
 ```
 
-After installation, open **Ports → python_game**. If it does not appear,
+After installation, open **Ports → py2port_pygame_template**. If it does not appear,
 refresh the game list in Knulli. Logs are at
-`/userdata/roms/ports/python_game/log.txt`.
+`/userdata/roms/ports/py2port_pygame_template/log.txt`.
 
 ### Connection problems
 
@@ -71,7 +73,7 @@ Passwords are never saved, and a deployment reuses one SSH connection.
 Override connection settings with `DEVICE_HOST`, `DEVICE_USER`, and `DEVICE_PORT`:
 
 ```sh
-make deploy GAME=python_game DEVICE_HOST=my-handheld DEVICE_USER=root DEVICE_PORT=22
+make deploy GAME=py2port_pygame_template DEVICE_HOST=my-handheld DEVICE_USER=root DEVICE_PORT=22
 ```
 
 For persistent settings, use `~/.ssh/config`; port settings there are respected
@@ -85,7 +87,7 @@ Host my-handheld
     IdentityFile ~/.ssh/id_ed25519
 ```
 
-Then use `make deploy GAME=python_game DEVICE_HOST=my-handheld`. `DEVICE_USER`
+Then use `make deploy GAME=py2port_pygame_template DEVICE_HOST=my-handheld`. `DEVICE_USER`
 defaults to root; set it explicitly if your SSH configuration uses another user.
 
 ## Other commands
@@ -94,9 +96,9 @@ defaults to root; set it explicitly if your SSH configuration uses another user.
 make list
 make validate
 make build                      # stage every accessible registered game
-make build GAME=python_game
+make build GAME=py2port_pygame_template
 make package                    # create dist/<id>.zip for every game
-make package GAME=python_game
+make package GAME=py2port_pygame_template
 make deploy                     # install existing ZIPs for registered games
 make test                       # no connection to a physical device
 ```
@@ -104,7 +106,7 @@ make test                       # no connection to a physical device
 The CLI provides the same commands:
 
 ```sh
-.venv/bin/py2ports deploy --game python_game --host 192.168.1.50
+.venv/bin/py2ports deploy --game py2port_pygame_template --host 192.168.1.50
 .venv/bin/py2ports check-device --host 192.168.1.50
 .venv/bin/py2ports validate --metadata-only
 ```
@@ -118,6 +120,9 @@ or development tools on the device. Automated deployment additionally verifies
 checksums, stages the installation, preserves `data/`, and retains the previous
 installation in a hidden backup. It does not delete other games. Games should
 store saves in `PY2PORTS_DATA_DIR`; arbitrary saves elsewhere remain in the backup.
+The template installs under `/userdata/roms/ports/py2port_pygame_template/`,
+with its own launcher. Any previous `python_game` installation remains separate;
+there is no automatic deletion or migration.
 Do not upgrade a game while it is running. Backups are retained until you remove
 them, so check storage after repeated upgrades.
 
@@ -165,19 +170,42 @@ Paths must stay inside their source root. Source symlinks, untracked files,
 dirty checkouts, and mismatched submodule pins are rejected. The platform reads
 game source into ignored build artifacts; it never vendors it into platform code.
 
-### Run the example independently
+### Start from the Pygame template
 
-The fresh repository is a normal desktop game, even without py2ports:
+With access to the private [py2port_pygame_template repository](https://github.com/OscarJHernandez/py2port_pygame_template),
+select **Use this template → Create a new repository**. Choose your own game name
+and keep the generated repository private. It starts with independent Git history.
+Clone it, run `make setup`, `make run`, and `make test`, then customize the game
+loop and add assets. Keep copied code private unless its owner separately
+permits public redistribution.
+
+From your py2ports checkout, register the repository you created:
 
 ```sh
-git clone https://github.com/OscarJHernandez/py2ports-example-game.git
-cd py2ports-example-game
-python3 -m venv .venv
-. .venv/bin/activate
-python -m pip install -r requirements.txt
-python src/run.py
-python -m unittest discover -s tests
+.venv/bin/py2ports add https://github.com/YOU/YOUR-GAME.git \
+    --name my_game --entrypoint src/run.py
+make deploy GAME=my_game
 ```
+
+In its catalog manifest, select `include = ["src", "assets", "README.md"]` to
+package the game, its asset directory, and origin notices. Leave `publish = false`.
+All Knulli runtime, launcher, and SSH configuration stays in the superproject.
+
+### Run the template independently
+
+The template itself is a normal desktop game, even without py2ports:
+
+```sh
+git clone https://github.com/OscarJHernandez/py2port_pygame_template.git
+cd py2port_pygame_template
+make setup
+make run
+make test
+```
+
+These commands use the template's own Makefile and desktop `pygame==2.6.1`.
+The template README covers controls and customization. No Docker or device is
+needed for desktop play or the headless smoke test.
 
 ## Runtime and architecture
 
@@ -217,7 +245,7 @@ and releases its unique SquashFS mount on normal exit and handled signals.
 Public CI validates catalog metadata without fetching private submodules, runs
 synthetic independent-game tests, and builds/packages a synthetic game with the
 real ARM64 runtime. It never receives private-game credentials. Local private
-verification uses `make validate`, `make package GAME=python_game`, and the
+verification uses `make validate`, `make package GAME=py2port_pygame_template`, and the
 independent desktop smoke test above. CI explicitly reports private coverage as skipped.
 
 Tags matching `v*` and manual release runs build only games explicitly marked

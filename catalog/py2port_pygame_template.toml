@@ -1,9 +1,9 @@
 schema = 1
-id = "python_game"
-name = "Python Game"
-submodule = "games/python_game"
+id = "py2port_pygame_template"
+name = "Py2port Pygame Template"
+submodule = "games/py2port_pygame_template"
 source = "."
-include = ["src"]
+include = ["src", "assets", "README.md"]
 entrypoint = "src/run.py"
 working_directory = "."
 runtime = "knulli-arm64"

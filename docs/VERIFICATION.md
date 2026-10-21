@@ -9,9 +9,11 @@ No check connected to a physical handheld.
 | `make list`, `make validate` | Passed with the actual private game submodule |
 | `make test` | 60 passed |
 | Independent private-game desktop smoke | 1 passed with pygame 2.6.1 and dummy SDL drivers |
+| Template Makefile | Standalone `make setup` and `make test` passed; `make run` resolves to the desktop entrypoint |
+| Private-template ARM64 smoke | 1 passed in the extracted runtime with Pygame-CE 2.5.6 and Python 3.12.8 |
 | Fresh game repository history | One new root commit; no original history inherited |
 | Original versus fresh game source | Both source Git blob hashes match the authorized original revision |
-| Fresh remote visibility | Private |
+| Fresh remote visibility | Private; GitHub template flag enabled |
 | Submodule representation | Git mode 160000, pinned to the fresh game commit |
 | Actual recursive GitHub clone | Passed; fresh private submodule initialized and independent desktop smoke passed |
 | Real Docker/SquashFS build | Passed: ARM64 Python 3.12.8 and Pygame-CE 2.5.6 |
@@ -20,6 +22,7 @@ No check connected to a physical handheld.
 | Extracted runtime display/audio/font smoke | Passed in a separate ARM64 container using dummy SDL drivers |
 | Runtime reuse | Repeated builds used the unchanged cache entry |
 | Actual private-game ZIP | Built locally and validated; roughly 400 MiB; no public upload |
+| Template ZIP identity and assets | New launcher/directory only; source, assets directory and origin README included |
 | Package extraction | Synthetic game automated tests and actual private ZIP extraction passed |
 | Device connection errors and install/upgrade/rollback | Simulated transport/shell tests passed |
 | Python compilation and shell syntax | Passed |
@@ -34,12 +37,22 @@ checks, installation rollback, preserved saves, and unrelated installed games.
 Release tests verify that private games and pre-existing private ZIPs are
 excluded from public artifacts and that public-repository checks use no token.
 
+The registered example is the private GitHub template
+`OscarJHernandez/py2port_pygame_template`, pinned to its independent root commit
+`8c91883ce3edce5dba25150e3512234de8ea5f56`. Its two game-source blob hashes
+match the original authorized snapshot. The original `python_game` and earlier
+`py2ports-example-game` remote repositories are preserved. The old `python_game`
+catalog entry and submodule path have been removed from the current tree.
+The replacement reused runtime cache `3aa7ac46c874` without changing the runtime
+artifact's modification time. No runtime scripts, platform Python logic, or
+public CI access policy changed for the template replacement.
+
 ## Repository structure
 
 ```text
 py2ports/
-├── games/python_game/       # fresh private repository, real pinned submodule
-├── catalog/python_game.toml
+├── games/py2port_pygame_template/       # fresh private GitHub template, pinned submodule
+├── catalog/py2port_pygame_template.toml
 ├── py2ports/                # CLI, catalog, runtime builder, ZIP packager, SSH installer, releases
 ├── runtime/                 # pinned ARM64 profile, Compose, build and library-audit scripts
 ├── launcher/                # generated per-game shell launcher template
@@ -57,9 +70,9 @@ py2ports/
 ## Build and deploy
 
 ```sh
-make package GAME=python_game
+make package GAME=py2port_pygame_template
 make check-device DEVICE_HOST=192.168.1.50
-make deploy GAME=python_game DEVICE_HOST=192.168.1.50
+make deploy GAME=py2port_pygame_template DEVICE_HOST=192.168.1.50
 ```
 
 The last command performs the connection check automatically and builds missing
