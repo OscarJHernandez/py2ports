@@ -1,0 +1,14 @@
+schema = 1
+id = "py2ports_breakout"
+name = "py2ports Breakout"
+submodule = "games/py2ports_breakout"
+source = "."
+include = ["src", "assets", "README.md", "LICENSE", "TEMPLATE_ORIGIN.json"]
+entrypoint = "src/run.py"
+working_directory = "."
+runtime = "knulli-arm64"
+publish = true
+
+[environment]
+SDL_VIDEODRIVER = "mali"
+BREAKOUT_FULLSCREEN = "1"

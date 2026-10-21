@@ -9,14 +9,15 @@ runtime and Ports launcher.
 **You need:** Python 3.11+, Git, Make, SSH/SCP, and Docker with Compose running.
 Enable SSH on your handheld and connect it to the same network as your computer.
 
-**The included [Pygame template](https://github.com/OscarJHernandez/py2port_pygame_template)
-is private** and requires repository access. Without access, [add your own game](#add-your-own-game).
+Snake, Breakout and the [Pygame template](https://github.com/OscarJHernandez/py2port_pygame_template)
+are public and MIT-licensed. No private repository access is needed.
 
 ```sh
 git clone --recurse-submodules https://github.com/OscarJHernandez/py2ports.git
 cd py2ports
 make setup
-make deploy GAME=py2port_pygame_template
+make deploy GAME=py2ports_snake
+make deploy GAME=py2ports_breakout
 ```
 
 The default connection is `root@knulli`. To check it without building or installing:
@@ -29,15 +30,24 @@ If `knulli` cannot be found, use the IP from the handheld's network menu:
 
 ```sh
 make check-device DEVICE_HOST=192.168.1.50
-make deploy GAME=py2port_pygame_template DEVICE_HOST=192.168.1.50
+make deploy GAME=py2ports_snake DEVICE_HOST=192.168.1.50
 ```
 
 The first runtime build takes longer; later deployments reuse cached builds.
-Allow roughly **1 GiB free** for the example's initial installation; upgrades
+Allow roughly **1 GiB free** for each game's initial installation; upgrades
 need extra space for a backup. Deployment checks available storage before uploading.
 
-After installation, open **Ports → py2port_pygame_template**. Game logs:
-`/userdata/roms/ports/py2port_pygame_template/log.txt`.
+After installation, open **Ports → py2ports_snake** or **py2ports_breakout**.
+Logs are at `/userdata/roms/ports/<game-id>/log.txt`.
+
+| Game | Play |
+| --- | --- |
+| [Snake](https://github.com/OscarJHernandez/py2ports_snake) | Eat, grow and fill the board. D-pad / stick / arrows / WASD to turn. |
+| [Breakout](https://github.com/OscarJHernandez/py2ports_breakout) | Clear three levels with three lives. Left/right to move; A / Enter to launch. |
+
+Both games: **A / Enter** to play, **Start / P** to pause, **B / Esc** to go back.
+Prefer a ZIP without Docker? See [manual installation and checksums](docs/GUIDE.md#install-a-zip-manually).
+Release publication remains manual; CI prepares downloadable public game artifacts.
 
 ## How it works
 
@@ -70,7 +80,6 @@ or internet connection. Graphics, controls and audio still need hardware testing
 
 ## Add your own game
 
-Clone py2ports **without** `--recurse-submodules`, then run `make setup`.
 Register your game repository with its Python entrypoint:
 
 ```sh
@@ -80,8 +89,9 @@ Register your game repository with its Python entrypoint:
 make deploy GAME=my_game
 ```
 
-To start with a playable demo, use the private template's **Use this template**
-button and register the new repository with `--entrypoint src/run.py`.
+To start from the public movement demo, use the template's **Use this template**
+button and register the new repository with `--entrypoint src/run.py`. Snake and
+Breakout were both created this way.
 
 ## More information
 
@@ -90,6 +100,6 @@ button and register the new repository with `--entrypoint src/run.py`.
 - [Contributing](CONTRIBUTING.md) · [Verification results](docs/VERIFICATION.md)
 - [MIT license](LICENSE) for platform code · [Dependency notices](THIRD_PARTY_NOTICES.md)
 
-Games and dependencies retain their own licenses. The private template requires
-separate authorization for public redistribution; release publication defaults
-to disabled. py2ports is unofficial and is not affiliated with Knulli.
+Games and dependencies retain their own licenses; check licenses when adding
+new content. Release publication defaults to disabled. py2ports is unofficial
+and is not affiliated with Knulli.

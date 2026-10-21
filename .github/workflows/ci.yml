@@ -22,7 +22,7 @@ jobs:
       - run: python -m pip install -e '.[dev]'
       - run: py2ports validate --metadata-only
       - run: python -m pytest
-      - run: echo 'Private game checkout/build skipped. Synthetic independent games cover public integration tests.'
+      - run: echo 'Private games remain metadata-only; public shipped games are exercised in the ARM64 job.'
   arm64-runtime:
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 45
@@ -40,3 +40,14 @@ jobs:
           path: build/runtimes
           key: public-runtime-arm64-${{ hashFiles('runtime/*') }}
       - run: python tests/runtime_smoke.py
+      - name: Initialize only the shipped public games
+        run: git submodule update --init -- games/py2ports_snake games/py2ports_breakout
+      - run: python tests/public_games_smoke.py
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: public-playable-games
+          path: |
+            dist/py2ports_snake.zip
+            dist/py2ports_breakout.zip
+            dist/public-games-SHA256SUMS
+          if-no-files-found: error

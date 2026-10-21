@@ -31,17 +31,22 @@ make test
 ```
 
 These tests and metadata checks require neither private game access nor Docker
-nor a handheld. Clone without `--recurse-submodules` when private access is
-unavailable. Do not treat a missing private checkout as a platform defect.
+nor a handheld. All currently registered submodules are public. For future private
+games, clone without recursive initialization when access is unavailable; a missing
+private checkout is not a platform defect.
 For focused checks, use `.venv/bin/python -m pytest tests/test_device.py` or the
 relevant test module. Keep new platform dependencies deliberate; the CLI currently
 uses the standard library and has no installed runtime dependencies.
 
 ## Games and privacy
 
-- `games/py2port_pygame_template` is a private GitHub template submodule. Its
-  catalog ID is `py2port_pygame_template`, with entrypoint `src/run.py` and explicit
-  `src`, `assets` and origin README inclusion. Do not copy its source into this repo.
+- The public MIT template remains a movement demo. Snake and Breakout are separate
+  public repositories generated from that template, recorded in each game's
+  `TEMPLATE_ORIGIN.json`. Catalog IDs are `py2ports_snake` and `py2ports_breakout`,
+  both using `src/run.py`. Keep all game source in genuine submodules. The template
+  has `publish = false`; the two licensed games have `publish = true`.
+- Include game licenses, origin attribution and assets explicitly in manifests.
+  The original private game repositories remain private and unchanged.
 - Keep games independently runnable on desktop. Desktop `pygame==2.6.1` and the
   device profile's Python 3.12.8 / Pygame-CE 2.5.6 are separate environments.
 - Register games with `.venv/bin/py2ports add <repository-url> --name <id>
@@ -52,16 +57,17 @@ uses the standard library and has no installed runtime dependencies.
   reject unsafe paths, untracked source files and symlink escapes.
 - Keep private code, packages and credentials out of public logs, artifacts,
   caches and releases. `build/` and `dist/` stay ignored. Public CI uses synthetic
-  games and metadata-only validation, without fetching private submodules.
+  games, metadata-only validation and explicitly initialized public Snake/Breakout
+  checkouts, without fetching private submodules.
 - Leave `publish = false` unless redistribution is authorized and source, assets
   and dependencies are eligible. Platform MIT licensing does not license games.
 
 ## Build and deployment contracts
 
 ```sh
-make package GAME=py2port_pygame_template
+make package GAME=py2ports_snake
 make check-device DEVICE_HOST=192.168.1.50
-make deploy GAME=py2port_pygame_template DEVICE_HOST=192.168.1.50
+make deploy GAME=py2ports_snake DEVICE_HOST=192.168.1.50
 ```
 
 Packaging needs Docker with Compose and ARM64 execution support. The connection
@@ -93,10 +99,13 @@ launcher or packaging changes, also run the real ARM64 synthetic smoke check:
 
 ```sh
 .venv/bin/python tests/runtime_smoke.py
+.venv/bin/python tests/public_games_smoke.py
 ```
 
 This needs Docker and may take longer on the first build. Preserve its cache-reuse
-check. For documentation-only edits, check links, commands and diagram rendering;
+check. The public-game check packages both real games, runs their ARM64 tests and
+simulates isolated installs/upgrades/rollback. For documentation-only edits, check
+links, commands and diagram rendering;
 a runtime rebuild is unnecessary.
 
 Use synthetic fixtures for automated device checks; never make tests contact a

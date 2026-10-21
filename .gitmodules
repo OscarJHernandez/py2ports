@@ -1,3 +1,9 @@
 [submodule "games/py2port_pygame_template"]
 	path = games/py2port_pygame_template
 	url = https://github.com/OscarJHernandez/py2port_pygame_template.git
+[submodule "games/py2ports_snake"]
+	path = games/py2ports_snake
+	url = https://github.com/OscarJHernandez/py2ports_snake.git
+[submodule "games/py2ports_breakout"]
+	path = games/py2ports_breakout
+	url = https://github.com/OscarJHernandez/py2ports_breakout.git

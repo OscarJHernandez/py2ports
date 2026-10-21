@@ -53,3 +53,31 @@ def test_public_repository_accepted_and_private_denied(monkeypatch):
     monkeypatch.setattr(release.urllib.request, "urlopen", lambda *a, **k: io.BytesIO(b'{"private": true, "visibility": "private"}'))
     with pytest.raises(Error, match="non-public"):
         release.public_repository("https://github.com/example/game.git")
+
+
+def test_release_includes_two_public_games_and_excludes_private(project, fake_docker, tmp_path, monkeypatch):
+    from conftest import add_game, command
+    identities = ("py2ports_snake", "py2ports_breakout")
+    for identity in identities:
+        add_game(project, identity)
+        manifest = project / "catalog" / f"{identity}.toml"
+        manifest.write_text(manifest.read_text().replace("publish = false", "publish = true"))
+    command(project, "add", "catalog")
+    command(project, "commit", "-m", "Enable authorized synthetic public games")
+    output = tmp_path / "public"
+    checked = []
+
+    def synthetic_runtime(args, **kwargs):
+        (output / "runtime.squashfs").write_bytes(b"public runtime")
+        (output / "runtime.json").write_text("{}")
+
+    monkeypatch.setattr(release, "run", synthetic_runtime)
+    monkeypatch.setattr(release, "public_repository", lambda url: checked.append(url) or url)
+    release.prepare(project, "v0.1.0", output)
+    records = json.loads((output / "release.json").read_text())["games"]
+    assert {record["id"] for record in records} == set(identities)
+    assert len(checked) == 2
+    assert all("alpha" not in url for url in checked)
+    assert {path.name for path in output.glob("*.zip")} == {f"{identity}-v0.1.0.zip" for identity in identities}
+    for record in records:
+        assert release.sha256(output / record["file"]) == record["sha256"]
